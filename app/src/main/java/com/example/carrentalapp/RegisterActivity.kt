@@ -58,7 +58,7 @@ fun RegisterScreen() {
             // Registration Illustration Image
             Image(
                 painter = painterResource(id = R.drawable.registration),
-                contentDescription = "Registration Illustration",
+                contentDescription = null,
                 modifier = Modifier
                     .height(250.dp)
                     .fillMaxWidth()

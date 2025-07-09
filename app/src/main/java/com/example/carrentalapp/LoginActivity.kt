@@ -1,5 +1,6 @@
 package com.example.carrentalapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +24,13 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MaterialTheme {
-                LoginScreen()
+                LoginScreen(
+                    onSignUpClick = {
+                        // Navigate to RegisterActivity
+                        val intent = Intent(this, RegisterActivity::class.java)
+                        startActivity(intent)
+                    }
+                )
             }
         }
     }
@@ -32,11 +38,11 @@ class LoginActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(onSignUpClick: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var showError by remember { mutableStateOf(false) }
     var rememberMeChecked by remember { mutableStateOf(false) }
+    var showAlertDialog by remember { mutableStateOf(false) } // Show alert if fields empty
 
     Scaffold(
         topBar = {
@@ -71,7 +77,6 @@ fun LoginScreen() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Username
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
@@ -83,7 +88,6 @@ fun LoginScreen() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -96,7 +100,6 @@ fun LoginScreen() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Remember Me & Forgot Password
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,11 +128,12 @@ fun LoginScreen() {
 
                 Button(
                     onClick = {
-                        showError = username.isEmpty() || password.isEmpty()
-                        if (!showError) {
-                            // Handle login logic
+                        if (username.isEmpty() || password.isEmpty()) {
+                            showAlertDialog = true
+                        } else {
+                            // Proceed with login logic
                             if (rememberMeChecked) {
-                                // Store login info with SharedPreferences (optional)
+                                // Save login info if needed
                             }
                         }
                     },
@@ -144,17 +148,22 @@ fun LoginScreen() {
                     "Don't have an account? Sign Up",
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable {
-                        // Handle Sign Up navigation
+                        onSignUpClick()
                     }
                 )
+            }
 
-                if (showError) {
-                    Text(
-                        text = "Please fill both fields",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
+            if (showAlertDialog) {
+                AlertDialog(
+                    onDismissRequest = { showAlertDialog = false },
+                    title = { Text("Incomplete Details") },
+                    text = { Text("Please fill out both Username and Password to login.") },
+                    confirmButton = {
+                        TextButton(onClick = { showAlertDialog = false }) {
+                            Text("OK")
+                        }
+                    }
+                )
             }
         }
     }
@@ -164,6 +173,6 @@ fun LoginScreen() {
 @Composable
 fun LoginScreenPreview() {
     MaterialTheme {
-        LoginScreen()
+        LoginScreen(onSignUpClick = {})
     }
 }

@@ -5,32 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,22 +36,16 @@ fun LoginScreen() {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
-
-    var rememberChecked by remember { mutableStateOf(false) }
-    var forgetPasswordChecked by remember { mutableStateOf(false) }
+    var rememberMeChecked by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "RatoNumber",
-                        color = Color.Red // Set title color to red
-                    )
+                    Text("रातोNumber", color = Color.Red)
                 },
-                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    // Remove titleContentColor to allow custom red color
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
         }
@@ -79,14 +55,13 @@ fun LoginScreen() {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Background image
             Image(
                 painter = painterResource(id = R.drawable.ratonumber_logo),
                 contentDescription = null,
                 modifier = Modifier
                     .height(250.dp)
-                    .width(500.dp)
-
+                    .width(600.dp)
+                    .align(Alignment.TopCenter)
             )
 
             Column(
@@ -96,35 +71,82 @@ fun LoginScreen() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Username field
+                // Username
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password field
+                // Password
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
                     visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Remember Me & Forgot Password
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = rememberMeChecked,
+                            onCheckedChange = { rememberMeChecked = it }
+                        )
+                        Text("Remember Me")
+                    }
+
+                    Text(
+                        text = "Forgot Password?",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            // Handle forgot password action
+                        }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = {
                         showError = username.isEmpty() || password.isEmpty()
+                        if (!showError) {
+                            // Handle login logic
+                            if (rememberMeChecked) {
+                                // Store login info with SharedPreferences (optional)
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Login")
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    "Don't have an account? Sign Up",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable {
+                        // Handle Sign Up navigation
+                    }
+                )
 
                 if (showError) {
                     Text(

@@ -3,12 +3,14 @@ package com.example.carrentalapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,11 +34,12 @@ fun RegisterScreen() {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("RatoNumber") },
+                title = { Text("रातोNumber") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
                     titleContentColor = Color.Red
@@ -49,10 +52,20 @@ fun RegisterScreen() {
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Username
+            // Registration Illustration Image
+            Image(
+                painter = painterResource(id = R.drawable.registration),
+                contentDescription = "Registration Illustration",
+                modifier = Modifier
+                    .height(250.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+
+            // Username input
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -62,7 +75,7 @@ fun RegisterScreen() {
 
             Spacer(Modifier.height(16.dp))
 
-            // Email
+            // Email input
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -72,7 +85,7 @@ fun RegisterScreen() {
 
             Spacer(Modifier.height(16.dp))
 
-            // Password
+            // Password input
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -83,7 +96,7 @@ fun RegisterScreen() {
 
             Spacer(Modifier.height(16.dp))
 
-            // Confirm Password
+            // Confirm Password input
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -98,12 +111,18 @@ fun RegisterScreen() {
             Button(
                 onClick = {
                     when {
-                        username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() ->
+                        username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() -> {
                             errorMessage = "Please fill all fields"
-                        password != confirmPassword ->
+                            showDialog = true
+                        }
+                        password != confirmPassword -> {
                             errorMessage = "Passwords don't match"
-                        else ->
+                            showDialog = true
+                        }
+                        else -> {
                             errorMessage = "Registration successful!"
+                            showDialog = true
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -114,20 +133,31 @@ fun RegisterScreen() {
             ) {
                 Text("Register")
             }
+        }
 
-            // Error/Success message
-            if (errorMessage.isNotEmpty()) {
-                Text(
-                    text = errorMessage,
-                    color = if (errorMessage == "Registration successful!") Color.Green else Color.Red,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
+        // Popup Dialog for messages
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = if (errorMessage == "Registration successful!") "Success" else "Error",
+                        color = if (errorMessage == "Registration successful!") Color.Green else Color.Red
+                    )
+                },
+                text = { Text(text = errorMessage) },
+                confirmButton = {
+                    TextButton(
+                        onClick = { showDialog = false }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
         }
     }
 }
 
-// Preview function - shows how the screen looks in Android Studio
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RegisterScreenPreview() {

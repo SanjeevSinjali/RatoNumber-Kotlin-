@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -115,11 +116,14 @@ fun LoginScreen(onSignUpClick: () -> Unit) {
                         Text("Remember Me")
                     }
 
+                    val context = LocalContext.current
+
                     Text(
                         text = "Forgot Password?",
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
                             // Handle forgot password action
+                            context.startActivity(Intent(context, ForgotPasswordActivity::class.java))
                         }
                     )
                 }

@@ -1,4 +1,4 @@
-package com.example.carrentalapp
+package com.example.carrentalapp.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.carrentalapp.R
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +28,6 @@ class LoginActivity : ComponentActivity() {
             MaterialTheme {
                 LoginScreen(
                     onSignUpClick = {
-                        // Navigate to RegisterActivity
                         val intent = Intent(this, RegisterActivity::class.java)
                         startActivity(intent)
                     }
@@ -43,7 +43,9 @@ fun LoginScreen(onSignUpClick: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMeChecked by remember { mutableStateOf(false) }
-    var showAlertDialog by remember { mutableStateOf(false) } // Show alert if fields empty
+    var showAlertDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -116,13 +118,10 @@ fun LoginScreen(onSignUpClick: () -> Unit) {
                         Text("Remember Me")
                     }
 
-                    val context = LocalContext.current
-
                     Text(
                         text = "Forgot Password?",
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
-                            // Handle forgot password action
                             context.startActivity(Intent(context, ForgotPasswordActivity::class.java))
                         }
                     )
@@ -135,10 +134,8 @@ fun LoginScreen(onSignUpClick: () -> Unit) {
                         if (username.isEmpty() || password.isEmpty()) {
                             showAlertDialog = true
                         } else {
-                            // Proceed with login logic
-                            if (rememberMeChecked) {
-                                // Save login info if needed
-                            }
+                            val intent = Intent(context, DashboardActivity::class.java)
+                            context.startActivity(intent)
                         }
                     },
                     modifier = Modifier.fillMaxWidth()

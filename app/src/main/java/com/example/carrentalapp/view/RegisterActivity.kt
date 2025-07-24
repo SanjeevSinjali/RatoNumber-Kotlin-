@@ -1,4 +1,4 @@
-package com.example.carrentalapp
+package com.example.carrentalapp.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,13 +14,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.carrentalapp.R
 
-class ForgotPasswordActivity : ComponentActivity() {
+class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                ForgotPasswordScreen()
+                RegisterScreen()
             }
         }
     }
@@ -28,13 +29,13 @@ class ForgotPasswordActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPasswordScreen() {
+fun RegisterScreen() {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -55,18 +56,17 @@ fun ForgotPasswordScreen() {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Illustration Image
+            // Registration Illustration Image
             Image(
-                painter = painterResource(id = R.drawable.forgot_password), // Replace with your image
+                painter = painterResource(id = R.drawable.registration),
                 contentDescription = null,
                 modifier = Modifier
                     .height(250.dp)
-                    .width(600.dp)
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
             )
 
-            // Username
+            // Username input
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -74,9 +74,9 @@ fun ForgotPasswordScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Email
+            // Email input
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -84,20 +84,20 @@ fun ForgotPasswordScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Password
+            // Password input
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("New Password") },
+                label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Confirm Password
+            // Confirm Password input
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -106,23 +106,25 @@ fun ForgotPasswordScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // Reset Button
+            // Register Button
             Button(
                 onClick = {
                     when {
                         username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() -> {
-                            message = "Please fill all fields"
+                            errorMessage = "Please fill all fields"
+                            showDialog = true
                         }
                         password != confirmPassword -> {
-                            message = "Passwords do not match"
+                            errorMessage = "Passwords don't match"
+                            showDialog = true
                         }
                         else -> {
-                            message = "Password successfully reset"
+                            errorMessage = "Registration successful!"
+                            showDialog = true
                         }
                     }
-                    showDialog = true
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -130,23 +132,25 @@ fun ForgotPasswordScreen() {
                     contentColor = Color.White
                 )
             ) {
-                Text("Reset Password")
+                Text("Register")
             }
         }
 
-        // Popup Dialog
+        // Popup Dialog for messages
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = {
                     Text(
-                        text = if (message == "Password successfully reset") "Success" else "Error",
-                        color = if (message == "Password successfully reset") Color.Green else Color.Red
+                        text = if (errorMessage == "Registration successful!") "Success" else "Error",
+                        color = if (errorMessage == "Registration successful!") Color.Green else Color.Red
                     )
                 },
-                text = { Text(text = message) },
+                text = { Text(text = errorMessage) },
                 confirmButton = {
-                    TextButton(onClick = { showDialog = false }) {
+                    TextButton(
+                        onClick = { showDialog = false }
+                    ) {
                         Text("OK")
                     }
                 }
@@ -157,8 +161,8 @@ fun ForgotPasswordScreen() {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ForgotPasswordScreenPreview() {
+fun RegisterScreenPreview() {
     MaterialTheme {
-        ForgotPasswordScreen()
+        RegisterScreen()
     }
 }

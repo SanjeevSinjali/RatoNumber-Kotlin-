@@ -1,8 +1,7 @@
 package com.example.carrentalapp.viewmodel
 
 import androidx.lifecycle.ViewModel
-
-data class NavigationItem(val title: String)
+import com.example.carrentalapp.model.NavigationItem // ✅ Import the correct one
 
 class DashboardViewModel : ViewModel() {
     val navigationItems = listOf(

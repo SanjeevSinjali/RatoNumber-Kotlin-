@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,9 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.carrentalapp.viewmodel.DashboardViewModel
 import kotlinx.coroutines.launch
 
 class DashboardActivity : ComponentActivity() {
@@ -39,22 +44,20 @@ class DashboardActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimpleDashboardScreen() {
+fun SimpleDashboardScreen(viewModel: DashboardViewModel = viewModel()) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val navigationItems = listOf("Home", "Cars", "Settings", "Sign Out")
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(12.dp))
-                navigationItems.forEach { item ->
+                viewModel.navigationItems.forEach { item ->
                     NavigationDrawerItem(
                         label = { Text(item) },
                         selected = false,
                         onClick = {
-                            // TODO: handle click
                             scope.launch { drawerState.close() }
                         }
                     )
@@ -82,20 +85,14 @@ fun SimpleDashboardScreen() {
                     .fillMaxSize()
                     .background(Color.White)
             ) {
-                CarBookingForm()
+                CarBookingForm(viewModel)
             }
         }
     }
 }
 
 @Composable
-fun CarBookingForm() {
-    var location by remember { mutableStateOf("") }
-    var pickupDate by remember { mutableStateOf("24.03.2023") }
-    var pickupTime by remember { mutableStateOf("18:00") }
-    var returnDate by remember { mutableStateOf("28.03.2023") }
-    var returnTime by remember { mutableStateOf("08:30") }
-
+fun CarBookingForm(viewModel: DashboardViewModel) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -105,8 +102,8 @@ fun CarBookingForm() {
             .padding(16.dp)
     ) {
         OutlinedTextField(
-            value = location,
-            onValueChange = { location = it },
+            value = viewModel.location.value,
+            onValueChange = { viewModel.location.value = it },
             placeholder = { Text("Pick-up and return location") },
             leadingIcon = {
                 Icon(Icons.Default.Search, contentDescription = null)
@@ -123,14 +120,14 @@ fun CarBookingForm() {
         ) {
             OutlinedCardItemEditable(
                 label = "Pick-up date",
-                value = pickupDate,
-                onValueChange = { pickupDate = it },
+                value = viewModel.pickupDate.value,
+                onValueChange = { viewModel.pickupDate.value = it },
                 modifier = Modifier.weight(1f)
             )
             OutlinedCardItemEditable(
                 label = "Time",
-                value = pickupTime,
-                onValueChange = { pickupTime = it },
+                value = viewModel.pickupTime.value,
+                onValueChange = { viewModel.pickupTime.value = it },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -143,14 +140,14 @@ fun CarBookingForm() {
         ) {
             OutlinedCardItemEditable(
                 label = "Return date",
-                value = returnDate,
-                onValueChange = { returnDate = it },
+                value = viewModel.returnDate.value,
+                onValueChange = { viewModel.returnDate.value = it },
                 modifier = Modifier.weight(1f)
             )
             OutlinedCardItemEditable(
                 label = "Time",
-                value = returnTime,
-                onValueChange = { returnTime = it },
+                value = viewModel.returnTime.value,
+                onValueChange = { viewModel.returnTime.value = it },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -158,22 +155,10 @@ fun CarBookingForm() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(text = "Available Cars", style = MaterialTheme.typography.titleMedium)
-
         Spacer(modifier = Modifier.height(12.dp))
 
-        val carTypes = listOf(
-            "SUV" to "https://i.imgur.com/UePbdph.png",
-            "SUV" to "https://i.imgur.com/LPZXkqZ.png",
-            "Sedan" to "https://i.imgur.com/3tV5u1O.png",
-            "Sedan" to "https://i.imgur.com/wG5A3OE.png",
-            "Offroad" to "https://i.imgur.com/R3vRZtz.png",
-            "Offroad" to "https://i.imgur.com/s0RZFKy.png",
-            "Truck" to "https://i.imgur.com/JZzFqpR.png",
-            "Truck" to "https://i.imgur.com/ViSdLMI.png"
-        )
-
         Column {
-            carTypes.chunked(2).forEach { rowItems ->
+            viewModel.carCategories.chunked(2).forEach { rowItems ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -221,23 +206,40 @@ fun OutlinedCardItemEditable(
 
 @Composable
 fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier) {
+    val painter = if (imageUrl.startsWith("http")) {
+        rememberAsyncImagePainter(imageUrl)
+    } else {
+        val context = LocalContext.current
+        val resId = remember(imageUrl) {
+            context.resources.getIdentifier(
+                imageUrl.substringBeforeLast('.'), // remove extension like .jpg
+                "drawable",
+                context.packageName
+            )
+        }
+        painterResource(id = resId)
+    }
+
     Card(
-        modifier = modifier.height(160.dp),
+        modifier = modifier
+            .height(180.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp)), // Border added
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.LightGray)
+                .background(Color(0xFFE0E0E0)) // Slightly darker background
                 .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = rememberAsyncImagePainter(imageUrl),
+                painter = painter,
                 contentDescription = label,
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(40.dp))
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(label, style = MaterialTheme.typography.labelMedium)

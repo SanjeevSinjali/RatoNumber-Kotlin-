@@ -2,17 +2,11 @@ package com.example.carrentalapp.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.carrentalapp.model.NavigationItem
 
 class DashboardViewModel : ViewModel() {
 
-    // Navigation items
-    val navigationItems = listOf(
-        NavigationItem("Home"),
-        NavigationItem("Cars"),
-        NavigationItem("Settings"),
-        NavigationItem("Sign Out")
-    )
+    // Navigation items — now plain strings
+    val navigationItems = listOf("Home", "Cars", "Settings", "Sign Out")
 
     // Form state
     var location = mutableStateOf("")
@@ -21,10 +15,10 @@ class DashboardViewModel : ViewModel() {
     var returnDate = mutableStateOf("28.03.2023")
     var returnTime = mutableStateOf("08:30")
 
-    // Car categories with label and image URL
+    // Car categories (use resource name without extension for drawable)
     val carCategories = listOf(
-        "SUV" to "https://example.com/suv1.png",
-        "SUV" to "https://example.com/suv2.png",
+        "SUV" to "suv",            // drawable/suv.jpg
+        "SUV" to "suv1",           // drawable/suv1.jpg
         "Sedan" to "https://example.com/sedan1.png",
         "Sedan" to "https://example.com/sedan2.png",
         "Offroad" to "https://example.com/offroad1.png",

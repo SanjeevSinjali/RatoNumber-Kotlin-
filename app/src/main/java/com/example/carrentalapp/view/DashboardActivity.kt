@@ -4,9 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -14,10 +17,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 
 class DashboardActivity : ComponentActivity() {
@@ -91,9 +96,12 @@ fun CarBookingForm() {
     var returnDate by remember { mutableStateOf("28.03.2023") }
     var returnTime by remember { mutableStateOf("08:30") }
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
         OutlinedTextField(
@@ -146,6 +154,37 @@ fun CarBookingForm() {
                 modifier = Modifier.weight(1f)
             )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = "Available Cars", style = MaterialTheme.typography.titleMedium)
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        val carTypes = listOf(
+            "SUV" to "https://i.imgur.com/UePbdph.png",
+            "SUV" to "https://i.imgur.com/LPZXkqZ.png",
+            "Sedan" to "https://i.imgur.com/3tV5u1O.png",
+            "Sedan" to "https://i.imgur.com/wG5A3OE.png",
+            "Offroad" to "https://i.imgur.com/R3vRZtz.png",
+            "Offroad" to "https://i.imgur.com/s0RZFKy.png",
+            "Truck" to "https://i.imgur.com/JZzFqpR.png",
+            "Truck" to "https://i.imgur.com/ViSdLMI.png"
+        )
+
+        Column {
+            carTypes.chunked(2).forEach { rowItems ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    rowItems.forEach { (label, imageUrl) ->
+                        CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.weight(1f))
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
     }
 }
 
@@ -176,6 +215,32 @@ fun OutlinedCardItemEditable(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+        }
+    }
+}
+
+@Composable
+fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.height(160.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray)
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(imageUrl),
+                contentDescription = label,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(40.dp))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(label, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

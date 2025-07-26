@@ -16,7 +16,7 @@ class ForgotPasswordActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                ForgotPasswordScreen(viewModel)
+                ForgotPasswordScreen(viewModel = viewModel)
             }
         }
     }

@@ -8,18 +8,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.example.carrentalapp.R
 import com.example.carrentalapp.viewmodel.ForgotPasswordViewModel
+import com.example.carrentalapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
-    var email by remember { mutableStateOf("") }
-    var currentPassword by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf(TextFieldValue("")) }
 
     val message by viewModel.message.collectAsState()
     val showDialog by viewModel.showDialog.collectAsState()
@@ -27,26 +24,25 @@ fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reset Password") },
+                title = { Text("रातोNumber") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
                     titleContentColor = Color.Red
                 )
             )
         }
-    ) { padding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(padding)
+                .padding(innerPadding)
                 .fillMaxSize()
                 .padding(24.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Image(
                 painter = painterResource(id = R.drawable.forgot_password),
-                contentDescription = "Forgot Password Illustration",
+                contentDescription = null,
                 modifier = Modifier
                     .height(250.dp)
                     .fillMaxWidth()
@@ -56,53 +52,21 @@ fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = currentPassword,
-                onValueChange = { currentPassword = it },
-                label = { Text("Current Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = newPassword,
-                onValueChange = { newPassword = it },
-                label = { Text("New Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirm New Password") },
-                visualTransformation = PasswordVisualTransformation(),
+                label = { Text("Enter your email") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = {
-                    viewModel.resetPassword(email, currentPassword, newPassword, confirmPassword)
-                },
+                onClick = { viewModel.resetPassword(email.text) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
                     contentColor = Color.White
                 )
             ) {
-                Text("Reset Password")
+                Text("Send Reset Link")
             }
 
             if (showDialog) {
@@ -110,11 +74,11 @@ fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel) {
                     onDismissRequest = { viewModel.dismissDialog() },
                     title = {
                         Text(
-                            text = if (message.contains("success", ignoreCase = true)) "Success" else "Error",
-                            color = if (message.contains("success", ignoreCase = true)) Color.Green else Color.Red
+                            text = if (message.contains("sent")) "Success" else "Error",
+                            color = if (message.contains("sent")) Color.Green else Color.Red
                         )
                     },
-                    text = { Text(message) },
+                    text = { Text(text = message) },
                     confirmButton = {
                         TextButton(onClick = { viewModel.dismissDialog() }) {
                             Text("OK")

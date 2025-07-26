@@ -1,5 +1,6 @@
 package com.example.carrentalapp.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.carrentalapp.viewmodel.DashboardViewModel
+import com.example.carrentalapp.view.LoginActivity
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +32,7 @@ import kotlinx.coroutines.launch
 fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -39,9 +42,15 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                 viewModel.navigationItems.forEach { item ->
                     NavigationDrawerItem(
                         label = { Text(item) },
-                        selected = false,
+                        selected = viewModel.selectedMenuItem.value == item,
                         onClick = {
                             scope.launch { drawerState.close() }
+
+                            if (item == "Sign Out") {
+                                context.startActivity(Intent(context, LoginActivity::class.java))
+                            } else {
+                                viewModel.selectedMenuItem.value = item
+                            }
                         }
                     )
                 }
@@ -68,7 +77,11 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                     .fillMaxSize()
                     .background(Color.White)
             ) {
-                CarBookingForm(viewModel)
+                when (viewModel.selectedMenuItem.value) {
+                    "Home" -> CarBookingForm(viewModel)
+                    "Cars" -> CarSectionScrollable(viewModel)
+                    "Settings" -> Text("Settings screen (To be implemented)", modifier = Modifier.padding(16.dp))
+                }
             }
         }
     }
@@ -80,7 +93,7 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
@@ -120,11 +133,32 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
         Text("Available Cars", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(12.dp))
 
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            viewModel.carCategories.forEach { (label, imageUrl) ->
-                CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.fillMaxWidth())
-            }
+        viewModel.carCategories.forEach { (label, imageUrl) ->
+            CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(12.dp))
         }
+
+        Spacer(modifier = Modifier.height(64.dp)) // bottom padding
+    }
+}
+
+@Composable
+fun CarSectionScrollable(viewModel: DashboardViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        Text("Available Cars", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        viewModel.carCategories.forEach { (label, imageUrl) ->
+            CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        Spacer(modifier = Modifier.height(64.dp))
     }
 }
 

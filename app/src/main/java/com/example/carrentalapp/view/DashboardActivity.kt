@@ -157,17 +157,12 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
         Text(text = "Available Cars", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(12.dp))
 
-        Column {
-            viewModel.carCategories.chunked(2).forEach { rowItems ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    rowItems.forEach { (label, imageUrl) ->
-                        CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.weight(1f))
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
+        // 🔽 UPDATED HERE: One card per row (vertical display)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            viewModel.carCategories.forEach { (label, imageUrl) ->
+                CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.fillMaxWidth())
             }
         }
     }
@@ -212,7 +207,7 @@ fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier)
         val context = LocalContext.current
         val resId = remember(imageUrl) {
             context.resources.getIdentifier(
-                imageUrl.substringBeforeLast('.'), // remove extension like .jpg
+                imageUrl.substringBeforeLast('.'),
                 "drawable",
                 context.packageName
             )
@@ -222,15 +217,15 @@ fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier)
 
     Card(
         modifier = modifier
-            .height(180.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp)), // Border added
+            .height(200.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFE0E0E0)) // Slightly darker background
-                .padding(8.dp),
+                .background(Color(0xFFE0E0E0))
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -238,7 +233,8 @@ fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier)
                 painter = painter,
                 contentDescription = label,
                 modifier = Modifier
-                    .size(100.dp)
+                    .height(120.dp)
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
             )
             Spacer(modifier = Modifier.height(8.dp))

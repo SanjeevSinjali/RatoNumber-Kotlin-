@@ -7,6 +7,8 @@ class DashboardViewModel : ViewModel() {
 
     val navigationItems = listOf("Home", "Cars", "Settings", "Sign Out")
 
+    var selectedMenuItem = mutableStateOf("Home")
+
     var location = mutableStateOf("")
     var pickupDate = mutableStateOf("24-03-2023")
     var pickupTime = mutableStateOf("18:00")

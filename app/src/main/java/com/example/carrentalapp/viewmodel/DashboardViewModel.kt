@@ -18,8 +18,8 @@ class DashboardViewModel : ViewModel() {
         "SUV" to "suv1",           // drawable/suv1.jpg
         "Sedan" to "sedan4",
         "Sedan" to "sedan2",
-        "EV" to "https://example.com/offroad1.png",
-        "EV" to "https://example.com/offroad2.png",
+        "EV" to "ev",
+        "EV" to "ev1",
         "Pickup Truck" to "pickup",
         "Pickup Truck" to "pickup2"
     )

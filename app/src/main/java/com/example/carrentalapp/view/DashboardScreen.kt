@@ -46,7 +46,6 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                         selected = viewModel.selectedMenuItem.value == item,
                         onClick = {
                             scope.launch { drawerState.close() }
-
                             if (item == "Sign Out") {
                                 context.startActivity(Intent(context, LoginActivity::class.java))
                             } else {
@@ -142,6 +141,7 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
                 imageUrl = imageUrl,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                viewModel.selectedCar.value = label
                 Toast.makeText(context, "$label selected", Toast.LENGTH_SHORT).show()
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -151,7 +151,12 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
 
         Button(
             onClick = {
-                Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+                if (viewModel.selectedCar.value.isNotEmpty()) {
+                    viewModel.rentCarToFirebase()
+                    Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Please select a car first", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -162,7 +167,7 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
             Text("Rent Car", color = Color.White)
         }
 
-        Spacer(modifier = Modifier.height(64.dp)) // bottom padding
+        Spacer(modifier = Modifier.height(64.dp))
     }
 }
 
@@ -187,6 +192,7 @@ fun CarSectionScrollable(viewModel: DashboardViewModel) {
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
             ) {
+                viewModel.selectedCar.value = label
                 Toast.makeText(context, "$label selected", Toast.LENGTH_SHORT).show()
             }
         }
@@ -195,7 +201,12 @@ fun CarSectionScrollable(viewModel: DashboardViewModel) {
 
         Button(
             onClick = {
-                Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+                if (viewModel.selectedCar.value.isNotEmpty()) {
+                    viewModel.rentCarToFirebase()
+                    Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Please select a car first", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()

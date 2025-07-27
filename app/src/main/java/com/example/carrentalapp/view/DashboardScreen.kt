@@ -1,6 +1,7 @@
 package com.example.carrentalapp.ui.screens
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -80,7 +81,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                 when (viewModel.selectedMenuItem.value) {
                     "Home" -> CarBookingForm(viewModel)
                     "Cars" -> CarSectionScrollable(viewModel)
-                    "Profile" -> UpdateProfileScreen(viewModel)  // Added Profile screen here
+                    "Profile" -> UpdateProfileScreen(viewModel)
                     "Settings" -> Text("Settings screen (To be implemented)", modifier = Modifier.padding(16.dp))
                     else -> Text("Unknown screen", modifier = Modifier.padding(16.dp))
                 }
@@ -92,6 +93,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
 @Composable
 fun CarBookingForm(viewModel: DashboardViewModel) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -135,7 +137,13 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         viewModel.carCategories.forEach { (label, imageUrl) ->
-            CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.fillMaxWidth())
+            CarImageCard(
+                label = label,
+                imageUrl = imageUrl,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Toast.makeText(context, "$label selected", Toast.LENGTH_SHORT).show()
+            }
             Spacer(modifier = Modifier.height(12.dp))
         }
 
@@ -146,6 +154,7 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
 @Composable
 fun CarSectionScrollable(viewModel: DashboardViewModel) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -162,7 +171,9 @@ fun CarSectionScrollable(viewModel: DashboardViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
-            )
+            ) {
+                Toast.makeText(context, "$label selected", Toast.LENGTH_SHORT).show()
+            }
         }
 
         Spacer(modifier = Modifier.height(64.dp))
@@ -198,7 +209,12 @@ fun OutlinedCardItemEditable(
 }
 
 @Composable
-fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier) {
+fun CarImageCard(
+    label: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier,
+    onSelect: () -> Unit = {}
+) {
     val painter = if (imageUrl.startsWith("http")) {
         rememberAsyncImagePainter(imageUrl)
     } else {
@@ -215,7 +231,7 @@ fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier)
 
     Card(
         modifier = modifier
-            .height(200.dp)
+            .height(250.dp)
             .border(1.dp, Color.Gray, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -225,18 +241,30 @@ fun CarImageCard(label: String, imageUrl: String, modifier: Modifier = Modifier)
                 .background(Color(0xFFE0E0E0))
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painter,
-                contentDescription = label,
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painter,
+                    contentDescription = label,
+                    modifier = Modifier
+                        .height(120.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(label, style = MaterialTheme.typography.labelMedium)
+            }
+
+            Button(
+                onClick = onSelect,
                 modifier = Modifier
-                    .height(120.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(label, style = MaterialTheme.typography.labelMedium)
+                    .padding(top = 8.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Select")
+            }
         }
     }
 }

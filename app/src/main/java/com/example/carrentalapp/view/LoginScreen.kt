@@ -26,6 +26,12 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
+    // Forgot password states
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
+    var forgotPasswordEmail by remember { mutableStateOf("") }
+    var forgotPasswordMessage by remember { mutableStateOf("") }
+    var showForgotPasswordResultDialog by remember { mutableStateOf(false) }
+
     val message by viewModel.message.collectAsState()
 
     LaunchedEffect(message) {
@@ -87,6 +93,22 @@ fun LoginScreen(
                         .padding(horizontal = 10.dp)
                 )
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Forgot Password clickable text
+                Text(
+                    text = "Forgot Password?",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(end = 10.dp)
+                        .clickable {
+                            forgotPasswordEmail = ""
+                            forgotPasswordMessage = ""
+                            showForgotPasswordDialog = true
+                        }
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
@@ -109,6 +131,7 @@ fun LoginScreen(
                 )
             }
 
+            // Login result dialog
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = {
@@ -127,6 +150,78 @@ fun LoginScreen(
                             onClick = {
                                 showDialog = false
                                 viewModel.clearMessage()
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
+
+            // Forgot Password Dialog
+            if (showForgotPasswordDialog) {
+                AlertDialog(
+                    onDismissRequest = { showForgotPasswordDialog = false },
+                    title = { Text("Reset Password") },
+                    text = {
+                        Column {
+                            OutlinedTextField(
+                                value = forgotPasswordEmail,
+                                onValueChange = { forgotPasswordEmail = it },
+                                label = { Text("Enter your registered email") },
+                                singleLine = true
+                            )
+                            if (forgotPasswordMessage.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = forgotPasswordMessage,
+                                    color = if (forgotPasswordMessage.contains("successfully", ignoreCase = true)) Color.Green else Color.Red
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                if (forgotPasswordEmail.isNotBlank()) {
+                                    viewModel.sendPasswordResetEmail(forgotPasswordEmail) { success, msg ->
+                                        forgotPasswordMessage = msg
+                                        if (success) {
+                                            showForgotPasswordResultDialog = true
+                                        }
+                                    }
+                                } else {
+                                    forgotPasswordMessage = "Please enter an email."
+                                }
+                            }
+                        ) {
+                            Text("Send")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showForgotPasswordDialog = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
+            // Forgot Password result dialog
+            if (showForgotPasswordResultDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showForgotPasswordResultDialog = false
+                        showForgotPasswordDialog = false
+                    },
+                    title = { Text("Reset Email Sent") },
+                    text = { Text("Please check your email for password reset instructions.") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showForgotPasswordResultDialog = false
+                                showForgotPasswordDialog = false
                             }
                         ) {
                             Text("OK")

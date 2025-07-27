@@ -31,6 +31,22 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun sendPasswordResetEmail(email: String, callback: (Boolean, String) -> Unit) {
+        if (email.isBlank()) {
+            callback(false, "Email cannot be empty.")
+            return
+        }
+
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    callback(true, "Password reset email sent successfully.")
+                } else {
+                    callback(false, task.exception?.localizedMessage ?: "Failed to send password reset email.")
+                }
+            }
+    }
+
     fun clearMessage() {
         _message.value = ""
     }

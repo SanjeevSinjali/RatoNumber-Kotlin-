@@ -8,7 +8,7 @@ import com.google.firebase.database.FirebaseDatabase
 class DashboardViewModel : ViewModel() {
 
     // Navigation
-    val navigationItems = listOf("Home", "Cars", "Profile", "Sign Out")
+    val navigationItems = listOf("Home", "Cars", "Profile", "Rented Cars", "Sign Out")
     var selectedMenuItem = mutableStateOf("Home")
 
     // Car Booking Fields

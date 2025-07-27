@@ -174,7 +174,6 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
 @Composable
 fun CarSectionScrollable(viewModel: DashboardViewModel) {
     val scrollState = rememberScrollState()
-    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -185,36 +184,13 @@ fun CarSectionScrollable(viewModel: DashboardViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         viewModel.carCategories.forEach { (label, imageUrl) ->
-            CarImageCard(
+            CarImageCardReadOnly(
                 label = label,
                 imageUrl = imageUrl,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
-            ) {
-                viewModel.selectedCar.value = label
-                Toast.makeText(context, "$label selected", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = {
-                if (viewModel.selectedCar.value.isNotEmpty()) {
-                    viewModel.rentCarToFirebase()
-                    Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Please select a car first", Toast.LENGTH_SHORT).show()
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-        ) {
-            Text("Rent Car", color = Color.White)
+            )
         }
 
         Spacer(modifier = Modifier.height(64.dp))
@@ -306,6 +282,54 @@ fun CarImageCard(
             ) {
                 Text("Select")
             }
+        }
+    }
+}
+
+@Composable
+fun CarImageCardReadOnly(
+    label: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier,
+) {
+    val painter = if (imageUrl.startsWith("http")) {
+        rememberAsyncImagePainter(imageUrl)
+    } else {
+        val context = LocalContext.current
+        val resId = remember(imageUrl) {
+            context.resources.getIdentifier(
+                imageUrl.substringBeforeLast('.'),
+                "drawable",
+                context.packageName
+            )
+        }
+        painterResource(id = resId)
+    }
+
+    Card(
+        modifier = modifier
+            .height(250.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFE0E0E0))
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = label,
+                modifier = Modifier
+                    .height(120.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(label, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

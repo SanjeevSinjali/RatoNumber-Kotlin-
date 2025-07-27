@@ -26,6 +26,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.carrentalapp.viewmodel.DashboardViewModel
 import com.example.carrentalapp.view.LoginActivity
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +37,13 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    // Load rented cars when "Rented Cars" is selected
+    LaunchedEffect(viewModel.selectedMenuItem.value) {
+        if (viewModel.selectedMenuItem.value == "Rented Cars") {
+            viewModel.loadRentedCars()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -80,6 +90,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                 when (viewModel.selectedMenuItem.value) {
                     "Home" -> CarBookingForm(viewModel)
                     "Cars" -> CarSectionScrollable(viewModel)
+                    "Rented Cars" -> RentedCarsScreen(viewModel)  // Added here
                     "Profile" -> UpdateProfileScreen(viewModel)
                     "Settings" -> Text("Settings screen (To be implemented)", modifier = Modifier.padding(16.dp))
                     else -> Text("Unknown screen", modifier = Modifier.padding(16.dp))
@@ -88,6 +99,50 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
         }
     }
 }
+
+@Composable
+fun RentedCarsScreen(viewModel: DashboardViewModel) {
+    val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    if (viewModel.rentedCarsList.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("No rented cars found", style = MaterialTheme.typography.titleMedium)
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(16.dp)
+                .fillMaxSize()
+        ) {
+            Text("Rented Cars", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            viewModel.rentedCarsList.forEach { rentedCar ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Car: ${rentedCar.car}", style = MaterialTheme.typography.titleMedium)
+                        Text("Location: ${rentedCar.location}")
+                        Text("Pick-up: ${rentedCar.pickupDate} at ${rentedCar.pickupTime}")
+                        Text("Return: ${rentedCar.returnDate} at ${rentedCar.returnTime}")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Existing Composables (CarBookingForm, CarSectionScrollable, OutlinedCardItemEditable, CarImageCard, CarImageCardReadOnly) remain unchanged...
 
 @Composable
 fun CarBookingForm(viewModel: DashboardViewModel) {

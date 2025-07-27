@@ -1,9 +1,21 @@
 package com.example.carrentalapp.viewmodel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
+
+data class RentedCar(
+    val userId: String = "",
+    val car: String = "",
+    val location: String = "",
+    val pickupDate: String = "",
+    val pickupTime: String = "",
+    val returnDate: String = "",
+    val returnTime: String = "",
+    val timestamp: Long = 0L
+)
 
 class DashboardViewModel : ViewModel() {
 
@@ -23,14 +35,14 @@ class DashboardViewModel : ViewModel() {
 
     // Car list
     val carCategories = listOf(
-        "SUV" to "suv",
-        "SUV" to "suv1",
-        "Sedan" to "sedan4",
-        "Sedan" to "sedan2",
-        "Jeep" to "jeep",
-        "Jeep" to "jeep1",
-        "Pickup Truck" to "pickup",
-        "Pickup Truck" to "pickup2"
+        "SUV-1" to "suv",
+        "SUV-2" to "suv1",
+        "Sedan-1" to "sedan4",
+        "Sedan-2" to "sedan2",
+        "Jeep-1" to "jeep",
+        "Jeep-2" to "jeep1",
+        "Pickup Truck-1" to "pickup",
+        "Pickup Truck-2" to "pickup2"
     )
 
     // Profile fields
@@ -38,6 +50,9 @@ class DashboardViewModel : ViewModel() {
     var userEmail = mutableStateOf("")
     var userPhone = mutableStateOf("")
     var userPassword = mutableStateOf("")
+
+    // List to hold rented cars fetched from Firebase
+    val rentedCarsList = mutableStateListOf<RentedCar>()
 
     // 🔥 Send booking data to Firebase
     fun rentCarToFirebase() {
@@ -57,5 +72,27 @@ class DashboardViewModel : ViewModel() {
         )
 
         database.child("bookings").child(bookingId).setValue(bookingData)
+    }
+
+    // 🔥 Load rented cars from Firebase
+    fun loadRentedCars() {
+        val database = FirebaseDatabase.getInstance().reference.child("bookings")
+
+        // Clear existing list before fetching
+        rentedCarsList.clear()
+
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                rentedCarsList.clear()
+                for (childSnapshot in snapshot.children) {
+                    val rentedCar = childSnapshot.getValue(RentedCar::class.java)
+                    rentedCar?.let { rentedCarsList.add(it) }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle errors here if needed
+            }
+        })
     }
 }

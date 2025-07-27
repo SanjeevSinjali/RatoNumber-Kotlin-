@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 class DashboardViewModel : ViewModel() {
 
     // Add "Profile" to navigation items list
-    val navigationItems = listOf("Home", "Cars", "Profile", "Settings", "Sign Out")
+    val navigationItems = listOf("Home", "Cars", "Profile", "Sign Out")
 
     var selectedMenuItem = mutableStateOf("Home")
 

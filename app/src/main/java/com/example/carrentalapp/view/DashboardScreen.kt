@@ -93,7 +93,6 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
@@ -144,18 +143,24 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
 
 @Composable
 fun CarSectionScrollable(viewModel: DashboardViewModel) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
         Text("Available Cars", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(12.dp))
 
         viewModel.carCategories.forEach { (label, imageUrl) ->
-            CarImageCard(label = label, imageUrl = imageUrl, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
+            CarImageCard(
+                label = label,
+                imageUrl = imageUrl,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(64.dp))

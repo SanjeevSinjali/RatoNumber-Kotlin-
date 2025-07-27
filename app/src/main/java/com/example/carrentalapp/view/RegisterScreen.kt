@@ -9,9 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.carrentalapp.R
+import com.example.carrentalapp.ui.theme.CarRentalAppTheme
 import com.example.carrentalapp.viewmodel.RegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,6 +137,15 @@ fun RegisterScreen(viewModel: RegisterViewModel = viewModel()) {
                     }
                 }
             )
+        }
+    }
+}
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun RegisterScreenPreview(){
+    CarRentalAppTheme {
+        Surface ( modifier = Modifier.fillMaxSize()) {
+            RegisterScreen()
         }
     }
 }

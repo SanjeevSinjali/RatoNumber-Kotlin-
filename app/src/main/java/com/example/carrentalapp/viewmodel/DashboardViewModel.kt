@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 data class RentedCar(
+    val key: String = "",    // Firebase key for the booking
     val userId: String = "",
     val car: String = "",
     val location: String = "",
@@ -74,11 +75,11 @@ class DashboardViewModel : ViewModel() {
         database.child("bookings").child(bookingId).setValue(bookingData)
     }
 
-    // 🔥 Load rented cars from Firebase
+    // 🔥 Load rented cars from Firebase (only for current user)
     fun loadRentedCars() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val database = FirebaseDatabase.getInstance().reference.child("bookings")
 
-        // Clear existing list before fetching
         rentedCarsList.clear()
 
         database.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -86,7 +87,12 @@ class DashboardViewModel : ViewModel() {
                 rentedCarsList.clear()
                 for (childSnapshot in snapshot.children) {
                     val rentedCar = childSnapshot.getValue(RentedCar::class.java)
-                    rentedCar?.let { rentedCarsList.add(it) }
+                    rentedCar?.let {
+                        val carWithKey = it.copy(key = childSnapshot.key ?: "")
+                        if (carWithKey.userId == userId) {
+                            rentedCarsList.add(carWithKey)
+                        }
+                    }
                 }
             }
 
@@ -94,5 +100,18 @@ class DashboardViewModel : ViewModel() {
                 // Handle errors here if needed
             }
         })
+    }
+
+    // 🔥 Cancel a rented car by removing booking from Firebase
+    fun cancelRentedCar(key: String, onComplete: () -> Unit = {}) {
+        if (key.isEmpty()) return
+
+        val database = FirebaseDatabase.getInstance().reference.child("bookings").child(key)
+        database.removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                rentedCarsList.removeAll { it.key == key }
+                onComplete()
+            }
+        }
     }
 }

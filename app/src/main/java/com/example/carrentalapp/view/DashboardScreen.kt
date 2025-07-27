@@ -26,9 +26,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.carrentalapp.viewmodel.DashboardViewModel
 import com.example.carrentalapp.view.LoginActivity
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +87,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                 when (viewModel.selectedMenuItem.value) {
                     "Home" -> CarBookingForm(viewModel)
                     "Cars" -> CarSectionScrollable(viewModel)
-                    "Rented Cars" -> RentedCarsScreen(viewModel)  // Added here
+                    "Rented Cars" -> RentedCarsScreen(viewModel)
                     "Profile" -> UpdateProfileScreen(viewModel)
                     "Settings" -> Text("Settings screen (To be implemented)", modifier = Modifier.padding(16.dp))
                     else -> Text("Unknown screen", modifier = Modifier.padding(16.dp))
@@ -135,6 +132,19 @@ fun RentedCarsScreen(viewModel: DashboardViewModel) {
                         Text("Location: ${rentedCar.location}")
                         Text("Pick-up: ${rentedCar.pickupDate} at ${rentedCar.pickupTime}")
                         Text("Return: ${rentedCar.returnDate} at ${rentedCar.returnTime}")
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = {
+                                viewModel.cancelRentedCar(rentedCar.key) {
+                                    Toast.makeText(context, "Rental cancelled", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Cancel Rental", color = Color.White)
+                        }
                     }
                 }
             }

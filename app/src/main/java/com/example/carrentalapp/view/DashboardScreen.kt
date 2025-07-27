@@ -147,6 +147,21 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
             Spacer(modifier = Modifier.height(12.dp))
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = {
+                Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Rent Car", color = Color.White)
+        }
+
         Spacer(modifier = Modifier.height(64.dp)) // bottom padding
     }
 }
@@ -174,6 +189,21 @@ fun CarSectionScrollable(viewModel: DashboardViewModel) {
             ) {
                 Toast.makeText(context, "$label selected", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = {
+                Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Rent Car", color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(64.dp))

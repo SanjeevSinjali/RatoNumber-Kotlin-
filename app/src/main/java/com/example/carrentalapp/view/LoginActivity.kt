@@ -22,6 +22,11 @@ class LoginActivity : ComponentActivity() {
                         val intent = Intent(this, DashboardActivity::class.java)
                         startActivity(intent)
                         finish()
+                    },
+                    onAdminLoginSuccess = {
+                        val intent = Intent(this, AdminDashboardActivity::class.java)
+                        startActivity(intent)
+                        finish()
                     }
                 )
             }

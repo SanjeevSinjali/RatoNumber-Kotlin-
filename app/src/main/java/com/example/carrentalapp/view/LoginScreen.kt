@@ -19,8 +19,9 @@ import com.example.carrentalapp.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     onSignUpClick: () -> Unit,
-    viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onAdminLoginSuccess: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -33,12 +34,14 @@ fun LoginScreen(
     var showForgotPasswordResultDialog by remember { mutableStateOf(false) }
 
     val message by viewModel.message.collectAsState()
+    val isAdmin by viewModel.isAdmin.collectAsState()
 
     LaunchedEffect(message) {
         if (message.isNotBlank()) {
             showDialog = true
-            if (message == "Login successful!") {
-                onLoginSuccess()
+            when (message) {
+                "Login successful!" -> onLoginSuccess()
+                "Admin login successful!" -> onAdminLoginSuccess()
             }
         }
     }
@@ -95,7 +98,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Forgot Password clickable text
                 Text(
                     text = "Forgot Password?",
                     color = MaterialTheme.colorScheme.primary,
@@ -140,8 +142,8 @@ fun LoginScreen(
                     },
                     title = {
                         Text(
-                            text = if (message == "Login successful!") "Success" else "Error",
-                            color = if (message == "Login successful!") Color.Green else Color.Red
+                            text = if (message.contains("successful")) "Success" else "Error",
+                            color = if (message.contains("successful")) Color.Green else Color.Red
                         )
                     },
                     text = { Text(text = message) },

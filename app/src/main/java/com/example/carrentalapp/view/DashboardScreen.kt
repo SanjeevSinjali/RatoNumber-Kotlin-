@@ -80,7 +80,9 @@ fun DashboardScreen(viewModel: DashboardViewModel = viewModel()) {
                 when (viewModel.selectedMenuItem.value) {
                     "Home" -> CarBookingForm(viewModel)
                     "Cars" -> CarSectionScrollable(viewModel)
+                    "Profile" -> UpdateProfileScreen(viewModel)  // Added Profile screen here
                     "Settings" -> Text("Settings screen (To be implemented)", modifier = Modifier.padding(16.dp))
+                    else -> Text("Unknown screen", modifier = Modifier.padding(16.dp))
                 }
             }
         }

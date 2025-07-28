@@ -7,5 +7,7 @@ data class RentedCar(
     val pickupDate: String = "",
     val pickupTime: String = "",
     val returnDate: String = "",
-    val returnTime: String = ""
+    val returnTime: String = "",
+    val price : Int = 0,
+    val timestamp: Long = 0L
 )

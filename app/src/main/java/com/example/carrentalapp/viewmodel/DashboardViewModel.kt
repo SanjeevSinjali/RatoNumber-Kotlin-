@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 data class RentedCar(
-    val key: String = "",    // Firebase key for the booking
+    val key: String = "",              // Firebase key for the booking
     val userId: String = "",
     val car: String = "",
     val location: String = "",
@@ -15,6 +15,7 @@ data class RentedCar(
     val pickupTime: String = "",
     val returnDate: String = "",
     val returnTime: String = "",
+    val price: Int = 0,                // ✅ Added price field
     val timestamp: Long = 0L
 )
 
@@ -55,11 +56,30 @@ class DashboardViewModel : ViewModel() {
     // List to hold rented cars fetched from Firebase
     val rentedCarsList = mutableStateListOf<RentedCar>()
 
-    // 🔥 Send booking data to Firebase
+    // ✅ Send booking data to Firebase with price
     fun rentCarToFirebase() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val database = FirebaseDatabase.getInstance().reference
         val bookingId = database.child("bookings").push().key ?: return
+
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd")
+        val pickup = try {
+            dateFormat.parse(pickupDate.value)
+        } catch (e: Exception) {
+            null
+        }
+        val returnD = try {
+            dateFormat.parse(returnDate.value)
+        } catch (e: Exception) {
+            null
+        }
+        val days = if (pickup != null && returnD != null) {
+            val diff = returnD.time - pickup.time
+            (diff / (1000 * 60 * 60 * 24)).toInt().coerceAtLeast(1)
+        } else {
+            1
+        }
+        val totalCost = days * 1500
 
         val bookingData = mapOf(
             "userId" to userId,
@@ -69,6 +89,7 @@ class DashboardViewModel : ViewModel() {
             "pickupTime" to pickupTime.value,
             "returnDate" to returnDate.value,
             "returnTime" to returnTime.value,
+            "price" to totalCost, // ✅ Save calculated price
             "timestamp" to System.currentTimeMillis()
         )
 

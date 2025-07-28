@@ -120,6 +120,25 @@ fun RentedCarsScreen(viewModel: DashboardViewModel) {
             Spacer(modifier = Modifier.height(16.dp))
 
             viewModel.rentedCarsList.forEach { rentedCar ->
+
+                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd")
+                val pickup = try {
+                    dateFormat.parse(rentedCar.pickupDate)
+                } catch (e: Exception) {
+                    null
+                }
+                val returnDate = try {
+                    dateFormat.parse(rentedCar.returnDate)
+                } catch (e: Exception) {
+                    null
+                }
+                val days = if (pickup != null && returnDate != null) {
+                    val diff = pickup.time - returnDate.time
+                    (diff / (1000 * 60 * 60 * 24)).toInt().coerceAtLeast(1)
+                }else{
+                    1
+                }
+                val totalCost = days * 1500
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -132,6 +151,8 @@ fun RentedCarsScreen(viewModel: DashboardViewModel) {
                         Text("Location: ${rentedCar.location}")
                         Text("Pick-up: ${rentedCar.pickupDate} at ${rentedCar.pickupTime}")
                         Text("Return: ${rentedCar.returnDate} at ${rentedCar.returnTime}")
+                        Text("Days Rented: $days")
+                        Text("Total Cost: ${String.format("Rs. %,d",totalCost)}", color = Color(0xFF388E3C))
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Button(

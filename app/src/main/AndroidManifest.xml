@@ -27,17 +27,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.UpdateProfileActivity"
-            android:exported="true"
-            android:label="@string/title_activity_update_profile"
-            android:theme="@style/Theme.CarRentalApp">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity> <!-- Activities -->
-        <activity
             android:name=".view.LoginActivity"
             android:exported="true"
             android:label="Login"

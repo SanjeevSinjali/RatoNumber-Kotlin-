@@ -1,7 +1,7 @@
 package com.example.carrentalapp.model
 
 data class RentedCar(
-    val key: String = "",  // Firebase key
+    var key: String = "",  // Firebase key
     val car: String = "",
     val location: String = "",
     val pickupDate: String = "",

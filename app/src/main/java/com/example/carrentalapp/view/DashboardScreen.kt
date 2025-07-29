@@ -238,11 +238,23 @@ fun CarBookingForm(viewModel: DashboardViewModel) {
         Button(
             onClick = {
                 if (viewModel.selectedCar.value.isNotEmpty()) {
-                    viewModel.rentCarToFirebase()
-                    Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+                    viewModel.rentCarToFirebase(
+                        onUnavailable = {
+                            Toast.makeText(context,"Car is not available", Toast.LENGTH_SHORT).show()
+                        },
+                        onSuccess = {
+                            Toast.makeText(context,"Car rented successfully", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 } else {
-                    Toast.makeText(context, "Please select a car first", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,"Please select a car first", Toast.LENGTH_SHORT).show()
                 }
+//                if (viewModel.selectedCar.value.isNotEmpty()) {
+//                    viewModel.rentCarToFirebase()
+//                    Toast.makeText(context, "Car rented successfully", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    Toast.makeText(context, "Please select a car first", Toast.LENGTH_SHORT).show()
+//                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -419,3 +431,4 @@ fun CarImageCardReadOnly(
         }
     }
 }
+

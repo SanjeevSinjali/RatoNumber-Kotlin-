@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 data class RentedCar(
-    val key: String = "",              // Firebase key for the booking
+    val key: String = "",
     val userId: String = "",
     val car: String = "",
     val location: String = "",
@@ -15,27 +15,22 @@ data class RentedCar(
     val pickupTime: String = "",
     val returnDate: String = "",
     val returnTime: String = "",
-    val price: Int = 0,                // ✅ Added price field
+    val price: Int = 0,
     val timestamp: Long = 0L
 )
 
 class DashboardViewModel : ViewModel() {
 
-    // Navigation
     val navigationItems = listOf("Home", "Cars", "Profile", "Rented Cars", "Sign Out")
     var selectedMenuItem = mutableStateOf("Home")
 
-    // Car Booking Fields
     var location = mutableStateOf("")
     var pickupDate = mutableStateOf("24-03-2023")
     var pickupTime = mutableStateOf("18:00")
     var returnDate = mutableStateOf("28-03-2023")
     var returnTime = mutableStateOf("08:30")
-
-    // Car selection tracking
     var selectedCar = mutableStateOf("")
 
-    // Car list
     val carCategories = listOf(
         "SUV-1" to "suv",
         "SUV-2" to "suv1",
@@ -47,56 +42,71 @@ class DashboardViewModel : ViewModel() {
         "Pickup Truck-2" to "pickup2"
     )
 
-    // Profile fields
     var userName = mutableStateOf("")
     var userEmail = mutableStateOf("")
     var userPhone = mutableStateOf("")
     var userPassword = mutableStateOf("")
 
-    // List to hold rented cars fetched from Firebase
     val rentedCarsList = mutableStateListOf<RentedCar>()
 
-    // ✅ Send booking data to Firebase with price
-    fun rentCarToFirebase() {
+    // ✅ Send booking data to Firebase
+    fun rentCarToFirebase(onSuccess: () -> Unit, onUnavailable: () -> Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val database = FirebaseDatabase.getInstance().reference
-        val bookingId = database.child("bookings").push().key ?: return
 
-        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd")
-        val pickup = try {
-            dateFormat.parse(pickupDate.value)
-        } catch (e: Exception) {
-            null
-        }
-        val returnD = try {
-            dateFormat.parse(returnDate.value)
-        } catch (e: Exception) {
-            null
-        }
-        val days = if (pickup != null && returnD != null) {
-            val diff = returnD.time - pickup.time
-            (diff / (1000 * 60 * 60 * 24)).toInt().coerceAtLeast(1)
-        } else {
-            1
-        }
-        val totalCost = days * 1500
+        database.child("bookings").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var isCarAvailable = true
+                for (bookingSnapshot in snapshot.children) {
+                    val booking = bookingSnapshot.getValue(RentedCar::class.java)
+                    if (booking != null && booking.car == selectedCar.value) {
+                        isCarAvailable = false
+                        break
+                    }
+                }
 
-        val bookingData = mapOf(
-            "userId" to userId,
-            "car" to selectedCar.value,
-            "location" to location.value,
-            "pickupDate" to pickupDate.value,
-            "pickupTime" to pickupTime.value,
-            "returnDate" to returnDate.value,
-            "returnTime" to returnTime.value,
-            "price" to totalCost, // ✅ Save calculated price
-            "timestamp" to System.currentTimeMillis()
-        )
+                if (!isCarAvailable) {
+                    onUnavailable()
+                    return
+                }
 
-        database.child("bookings").child(bookingId).setValue(bookingData)
+                val bookingId = database.child("bookings").push().key ?: return
+
+                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd")
+                val pickup = try { dateFormat.parse(pickupDate.value) } catch (e: Exception) { null }
+                val returnD = try { dateFormat.parse(returnDate.value) } catch (e: Exception) { null }
+
+                val days = if (pickup != null && returnD != null) {
+                    val diff = returnD.time - pickup.time
+                    (diff / (1000 * 60 * 60 * 24)).toInt().coerceAtLeast(1)
+                } else {
+                    1
+                }
+
+                val totalCost = days * 1500
+
+                val bookingData = mapOf(
+                    "userId" to userId,
+                    "car" to selectedCar.value,
+                    "location" to location.value,
+                    "pickupDate" to pickupDate.value,
+                    "pickupTime" to pickupTime.value,
+                    "returnDate" to returnDate.value,
+                    "returnTime" to returnTime.value,
+                    "price" to totalCost,
+                    "timestamp" to System.currentTimeMillis()
+                )
+
+                database.child("bookings").child(bookingId).setValue(bookingData).addOnSuccessListener {
+                    onSuccess()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
-    // 🔥 Load rented cars from Firebase (only for current user)
+    // ✅ Load rented cars from Firebase
     fun loadRentedCars() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val database = FirebaseDatabase.getInstance().reference.child("bookings")
@@ -117,13 +127,11 @@ class DashboardViewModel : ViewModel() {
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Handle errors here if needed
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 
-    // 🔥 Cancel a rented car by removing booking from Firebase
+    // ✅ Cancel a rented car
     fun cancelRentedCar(key: String, onComplete: () -> Unit = {}) {
         if (key.isEmpty()) return
 

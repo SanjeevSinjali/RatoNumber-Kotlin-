@@ -21,6 +21,8 @@ data class RentedCar(
 
 class DashboardViewModel : ViewModel() {
 
+    val rentedcarlist = mutableStateListOf<RentedCar>()
+
     val navigationItems = listOf("Home", "Cars", "Profile", "Rented Cars", "Sign Out")
     var selectedMenuItem = mutableStateOf("Home")
 

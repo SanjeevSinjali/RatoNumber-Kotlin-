@@ -1,4 +1,3 @@
-// file: view/AdminDashboardActivity.kt
 package com.example.carrentalapp.view
 
 import android.os.Bundle

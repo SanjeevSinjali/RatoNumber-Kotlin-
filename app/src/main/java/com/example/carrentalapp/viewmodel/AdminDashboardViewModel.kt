@@ -90,16 +90,16 @@ class AdminDashboardViewModel : ViewModel() {
     }
 }
 
-data class RentedCar(
-    val car: String = "",
-    val location: String = "",
-    val pickupDate: String = "",
-    val pickupTime: String = "",
-    val returnDate: String = "",
-    val returnTime: String = "",
-    val price: String = "",
-    val key: String = ""
-)
+//data class RentedCar(
+//    val car: String = "",
+//    val location: String = "",
+//    val pickupDate: String = "",
+//    val pickupTime: String = "",
+//    val returnDate: String = "",
+//    val returnTime: String = "",
+//    val price: String = "",
+//    val key: String = ""
+//)
 
 data class AvailableCar(
     val car: String = "",
